@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "661405020912",
+    "project_id": "myfin-ktp",
+    "storage_bucket": "myfin-ktp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:661405020912:android:0bcd1d00c9042d3205c835",
+        "android_client_info": {
+          "package_name": "com.example.myfin_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "661405020912-4hhlvj58lau3g6vv6r4e4icrf7ecjgut.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8bbFZ8C57dq2SlyVXruWbiTRzGsd_Oo0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "661405020912-4hhlvj58lau3g6vv6r4e4icrf7ecjgut.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
