@@ -1,13 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:myfin_app/pengajuankreditpage/kredit_2.dart';
+import 'package:Myfin/pengajuankreditpage/kredit_2.dart';
+import 'package:flutter/services.dart';
 import 'package:select_form_field/select_form_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class Kredit1 extends StatefulWidget {
   const Kredit1({Key? key}) : super(key: key);
 
   @override
   State<Kredit1> createState() => _Kredit1State();
+}
+
+class CurrencyPtBrInputFormatter extends TextInputFormatter {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
+    }
+
+    int value = int.parse(newValue.text);
+    final formatter = new NumberFormat.currency(
+        locale: 'id', decimalDigits: 0, symbol: 'Rp ');
+    String newText = formatter.format(value);
+
+    return newValue.copyWith(
+        text: newText,
+        selection: new TextSelection.collapsed(offset: newText.length));
+  }
 }
 
 class _Kredit1State extends State<Kredit1> {
@@ -167,6 +187,10 @@ class _Kredit1State extends State<Kredit1> {
               TextFormField(
                 controller: _besarPengajuanController,
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  CurrencyPtBrInputFormatter()
+                ],
                 decoration: InputDecoration(
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),

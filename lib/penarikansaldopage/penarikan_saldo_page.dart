@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:myfin_app/homepage/saldo_model.dart';
+import 'package:Myfin/homepage/saldo_model.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:myfin_app/alertsucces.dart';
+import 'package:Myfin/alertsucces.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../currency.dart';
 import '../homepage/navbar.dart';
-import 'package:myfin_app/penarikansaldopage/penarikan_saldo_model.dart';
+import 'package:Myfin/penarikansaldopage/penarikan_saldo_model.dart';
 
 class PenarikanSaldo extends StatefulWidget {
   const PenarikanSaldo({Key? key}) : super(key: key);
@@ -32,11 +34,29 @@ class MapUtils {
   }
 }
 
+class CurrencyPtBrInputFormatter extends TextInputFormatter {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
+    }
+
+    int value = int.parse(newValue.text);
+    final formatter = new NumberFormat.currency(
+        locale: 'id', decimalDigits: 0, symbol: 'Rp ');
+    String newText = formatter.format(value);
+
+    return newValue.copyWith(
+        text: newText,
+        selection: new TextSelection.collapsed(offset: newText.length));
+  }
+}
+
 Future<bool?> penguranganSaldo(int id, int saldo) async {
   SharedPreferences server = await SharedPreferences.getInstance();
   String? baseUrl = server.getString('server');
   final msg = jsonEncode({"saldo":saldo});
-  var response = await http.put(Uri.http(baseUrl!,'api/minsaldo/'+id.toString()),
+  var response = await http.put(Uri.https(baseUrl!,'api/minsaldo/'+id.toString()),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -61,7 +81,7 @@ Future<bool?> getsaldoData(int id) async {
   var stringId = id.toString();
 
   var response = await http.get(
-    Uri.http(baseUrl!, 'api/getsaldo/'+stringId),
+    Uri.https(baseUrl!, 'api/getsaldo/'+stringId),
     headers: {
       'X-API-Key': "myfin",
       'Accept': "application/json",
@@ -89,7 +109,7 @@ Future<bool?> penarikanSaldo(int id, int jumlahPenarikan,String bank, String nor
   String? baseUrl = server.getString('server');
 
   final msg = jsonEncode({"id": id, "jml_penarikan":jumlahPenarikan, "bank":bank, "norek":norek, "nama_pemilik":namaPemilik});
-  var response = await http.post(Uri.http(baseUrl!,'api/penarikansaldo'),
+  var response = await http.post(Uri.https(baseUrl!,'api/penarikansaldo'),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -215,7 +235,7 @@ class _PenarikanSaldoState extends State<PenarikanSaldo> {
                     Container(
                       padding: EdgeInsets.only(top: 70),
                       child: Text(
-                        "Untuk mengambil uang bisa langsung datangi\ncustomer\nservice Myfin dan sebutkan nama kamu",
+                        "Untuk mengambil uang bisa langsung datangi\ncustomer service Myfin dan sebutkan nama kamu",
                         style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 12,
@@ -298,6 +318,10 @@ class _PenarikanSaldoState extends State<PenarikanSaldo> {
                                     children: [
                                       TextFormField(
                                         controller: nominalController,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly,
+                                          CurrencyPtBrInputFormatter()
+                                        ],
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
                                             border: OutlineInputBorder(
@@ -423,27 +447,68 @@ class _PenarikanSaldoState extends State<PenarikanSaldo> {
                                     onPressed: () async{
                                       String nominalSaldo = nominalController.text;
                                       String jumlahPenarikan = nominalController.text;
+                                      String resultjumlahPenarikan = jumlahPenarikan.replaceAll(RegExp('[^0-9]'), '');
+                                      var jumlahPenarikanint = int.parse(resultjumlahPenarikan);
                                       String? bank = _valBank;
                                       String namaPemilik = namapemilikController.text;
                                       String norek = norekController.text;
+                                      var jumlahPenarikanbool;
+                                      if(jumlahPenarikanint!=null){
+                                        jumlahPenarikanbool = true;
+                                      }else{
+                                        jumlahPenarikanbool = false;
+                                      }
+                                      var bankbool;
+                                      if(bank!=null){
+                                        bankbool = true;
+                                      }else{
+                                        bankbool = false;
+                                      }
+                                      var namaPemilikbool;
+                                      if(namaPemilik!=null){
+                                        namaPemilikbool = true;
+                                      }else{
+                                        namaPemilikbool = false;
+                                      }
+                                      var norekbool;
+                                      if(norek!=null){
+                                        norekbool = true;
+                                      }else{
+                                        norekbool = false;
+                                      }
 
                                       SharedPreferences idNasabah = await SharedPreferences.getInstance();
                                       int? id = idNasabah.getInt('idNasabah');
 
-                                      if(int.parse(jumlahPenarikan) > saldo!){
-                                        showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Saldo Tidak Cukup"),));
-                                      }else{
-                                        var datapenarikan = await penarikanSaldo(id!, int.parse(jumlahPenarikan), bank!, norek, namaPemilik);
-
-                                        if(datapenarikan == true){
-                                          var datapengurangan = await penguranganSaldo(id!, int.parse(nominalSaldo));
-                                          showprogess(context);
-                                          // showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Penarikan Dalam Proses"),));
-                                          // await Navigator.push(context, new MaterialPageRoute(
-                                          //     builder: (context)=> Navbar()));
-                                        }else{
-                                          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pastikan Semua Terisi Benar"),));
+                                      // if(jumlahPenarikanint > saldo!){
+                                      //   showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Saldo Tidak Cukup"),));
+                                      // }
+                                      // if(jumlahPenarikanint < 10000){
+                                      //   showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Minimal Penarikan\nRp 10.000"),));
+                                      // }
+                                      if(jumlahPenarikanbool&&bankbool&&namaPemilikbool&&norekbool == true){
+                                        if(jumlahPenarikanint > saldo!){
+                                          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Saldo Tidak Cukup"),));
                                         }
+                                        else if(jumlahPenarikanint < 10000){
+                                          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Minimal Penarikan\nRp 10.000"),));
+                                        } else{
+                                          var datapenarikan = await penarikanSaldo(id!, jumlahPenarikanint, bank!, norek, namaPemilik);
+                                          print(jumlahPenarikanint);
+
+                                          if(datapenarikan == true){
+                                            var datapengurangan = await penguranganSaldo(id!, jumlahPenarikanint);
+                                            if(datapengurangan==true){
+                                              successPenarikanSaldo(context);
+                                            }
+                                            // showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Penarikan Dalam Proses"),));
+                                            // await Navigator.push(context, new MaterialPageRoute(
+                                            //     builder: (context)=> Navbar()));
+                                          }
+                                        }
+
+                                      }else{
+                                        showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pastikan Semua Terisi Benar"),));
                                       }
                                       ;
                                     },

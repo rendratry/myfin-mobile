@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myfin_app/custom_icon_icons.dart';
-import 'package:myfin_app/homepage/dashboard_page.dart';
-import 'package:myfin_app/homepage/profile_page.dart';
-import 'package:myfin_app/homepage/transaksi_page.dart';
+import 'package:Myfin/custom_icon_icons.dart';
+import 'package:Myfin/homepage/dashboard_page.dart';
+import 'package:Myfin/homepage/profile_page.dart';
+import 'package:Myfin/homepage/transaksi_page.dart';
 
 class Navbar extends StatefulWidget {
   const Navbar({Key? key}) : super(key: key);

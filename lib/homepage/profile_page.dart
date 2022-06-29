@@ -5,13 +5,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:myfin_app/datadiripage/data_diri.dart';
-import 'package:myfin_app/homepage/profile_model.dart';
-import 'package:myfin_app/loginpage/login_screen.dart';
-import 'package:myfin_app/pertanyaankeamananpage/pertanyaan.dart';
-import 'package:myfin_app/ubahpinpage/pin_lama.dart';
+import 'package:Myfin/datadiripage/data_diri.dart';
+import 'package:Myfin/homepage/profile_model.dart';
+import 'package:Myfin/loginpage/login_screen.dart';
+import 'package:Myfin/pertanyaankeamananpage/pertanyaan.dart';
+import 'package:Myfin/ubahpinpage/pin_lama.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../alertsucces.dart';
+import '../loading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:path/path.dart';
@@ -54,7 +56,7 @@ class _ProfileState extends State<Profile> {
     var stringId = id.toString();
 
     var response = await http.get(
-      Uri.http(baseUrl!, 'api/profile/'+stringId),
+      Uri.https(baseUrl!, 'api/profile/'+stringId),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -98,12 +100,12 @@ class _ProfileState extends State<Profile> {
 
     var msg = jsonEncode({"ava":ava});
     var response = await http.put(
-      Uri.http(baseUrl!, 'api/ava/'+id.toString()),
-      headers: {
-        'X-API-Key': "myfin",
-        'Accept': "application/json",
-      },
-      body: msg
+        Uri.https(baseUrl!, 'api/ava/'+id.toString()),
+        headers: {
+          'X-API-Key': "myfin",
+          'Accept': "application/json",
+        },
+        body: msg
     );
     var data = response.body;
     print(data);
@@ -299,18 +301,17 @@ class _ProfileState extends State<Profile> {
     }else {
       alamatToDisplay = alamat.toString();
     }
-      ;
+    ;
     return Scaffold(
       body: Container(
         padding: EdgeInsets.only(top: 17, left: 27, right: 27),
         color: Colors.white,
         child:
-        email == null? Center(child: CircularProgressIndicator()):
-        ava == null? Center(child: CircularProgressIndicator()):
-        nohp == null? Center(child: CircularProgressIndicator()):
-        alamat == null? Center(child: CircularProgressIndicator()):
-        nik == null? Center(child: CircularProgressIndicator()):
-        nama == null? Center(child: CircularProgressIndicator())
+        nik == null?  Center(
+          child: Lottie.network('https://assets4.lottiefiles.com/packages/lf20_b88nh30c.json',
+              width: 150,
+              height: 150
+          ),)
             :RefreshWidget(
           keyRefresh: keyRefresh,
           onRefresh: loadList,
@@ -340,63 +341,65 @@ class _ProfileState extends State<Profile> {
                 child: Row(
                   children: [
                     InkWell(
-                    onTap: (){
-              _showPicker(context);
-              },
-                child:
-                //_profile == null ?
-                // const ClipOval(
-                //   clipBehavior: Clip.antiAliasWithSaveLayer,
-                //   child: Icon(
-                //     CupertinoIcons.camera,
-                //     color: Colors.grey,
-                //   ),
-                // )
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(
-                          avaToDisplay),
-                    ),
+                      onTap: (){
+                        _showPicker(context);
+                      },
+                      child:
+                      //_profile == null ?
+                      // const ClipOval(
+                      //   clipBehavior: Clip.antiAliasWithSaveLayer,
+                      //   child: Icon(
+                      //     CupertinoIcons.camera,
+                      //     color: Colors.grey,
+                      //   ),
+                      // )
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage(
+                            avaToDisplay),
+                      ),
                     ),
                     SizedBox(
                       width: 25,
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          namaToDisplay,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 19,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        SizedBox(
-                          height: 4,
-                        ),
-                        Text(
-                          //emailToDisplay!
-                          emailToDisplay,
-                          style: TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 14,
-                              color: Color(0xff757575)),
-                        ),
-                        SizedBox(
-                          height: 4,
-                        ),
-                        Text(
-                          nohpToDisplay,
-                          style: TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 14,
-                              color: Color(0xff757575)),
-                        )
-                      ],
-                    )
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            namaToDisplay,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontFamily: 'Roboto',
+                                fontSize: 19,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Text(
+                            //emailToDisplay!
+                            emailToDisplay,
+                            style: TextStyle(
+                                fontFamily: 'Roboto',
+                                fontSize: 14,
+                                color: Color(0xff757575)),
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Text(
+                            nohpToDisplay,
+                            style: TextStyle(
+                                fontFamily: 'Roboto',
+                                fontSize: 14,
+                                color: Color(0xff757575)),
+                          )
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -551,7 +554,11 @@ class _ProfileState extends State<Profile> {
                   ),
                   InkWell(
                     onTap: () {
-                      ktpIsiData(context);
+                      if(nikToDisplay!="-"){
+                        alreadyVerified(context);
+                      }else{
+                        ktpIsiData(context);
+                      }
                       // Navigator.push(
                       //   context,
                       //   MaterialPageRoute(builder: (context) => const Datadiri()),
@@ -683,7 +690,11 @@ class _ProfileState extends State<Profile> {
                     SizedBox(
                       height: 16,
                     ),
-                    Column(
+                InkWell(
+                  onTap: () {
+                    playstoreAamiin(context);
+                  },
+                    child : Column(
                       children: [
                         Row(
                           children: [
@@ -709,6 +720,7 @@ class _ProfileState extends State<Profile> {
                         ),
                       ],
                     ),
+                ),
                     SizedBox(
                       height: 4,
                     ),

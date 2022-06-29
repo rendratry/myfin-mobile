@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:select_form_field/select_form_field.dart';
 import './kredit_3.dart';
+import 'kredit_1.dart';
 
 class Kredit2 extends StatefulWidget {
   final String valuePenggunaanKredit;
@@ -323,59 +324,55 @@ class _Kredit1State extends State<Kredit2> {
   final List<Map<String, dynamic>> listBisnis = [
     {
       'value': 1,
-      'label': 'Kuliner',
+      'label': 'Penjual Barang',
     },
     {
       'value': 2,
       'label': 'Penjual Jasa',
     },
-    {
-      'value': 1,
-      'label': 'Lainnya',
-    }
   ];
   final List<Map<String, dynamic>> listPendapatan = [
     {
       'value': 1,
-      'label': '< 1 Juta',
+      'label': '< Rp. 1.000.000',
     },
     {
       'value': 2,
-      'label': '> 1 Juta',
+      'label': '> Rp. 1.000.000 s/d Rp. 3.000.000',
     },
     {
       'value': 3,
-      'label': '> 3 Juta',
+      'label': '> Rp. 3.000.000 s/d Rp. 7.000.000',
     },
     {
       'value': 4,
-      'label': '< 10 Juta',
+      'label': '> Rp. 7.000.000 s/d Rp. 10.000.000',
     },
     {
       'value': 5,
-      'label': '> 10 Juta',
+      'label': '> Rp. 10.000.000',
     }
   ];
   final List<Map<String, dynamic>> listPendapatanPasangan = [
     {
       'value': 1,
-      'label': '< 1 Juta',
+      'label': '< Rp. 1.000.000',
     },
     {
       'value': 2,
-      'label': '> 1 Juta',
+      'label': '> Rp. 1.000.000 s/d Rp. 3.000.000',
     },
     {
       'value': 3,
-      'label': '> 3 Juta',
+      'label': '> Rp. 3.000.000 s/d Rp. 7.000.000',
     },
     {
       'value': 4,
-      'label': '< 10 Juta',
+      'label': '> Rp. 7.000.000 s/d Rp. 10.000.000',
     },
     {
       'value': 5,
-      'label': '> 10 Juta',
+      'label': '> Rp. 10.000.000',
     }
   ];
   final List<Map<String, dynamic>> listTempatTinggal = [
@@ -470,7 +467,7 @@ class _Kredit1State extends State<Kredit2> {
                 height: 20,
               ),
               CustomWidgets.textField(
-                  'Sudah berapa lama anda bekerja (untuk posisi ini)?',
+                  'Sudah berapa lama anda bekerja? (untuk posisi ini, cth: 1 bulan atau 1 Tahun)',
                   textController: _lamaBekerjaController,
                   lines: 1,
                   cornerRadius: 10.0),
@@ -623,12 +620,29 @@ class _Kredit1State extends State<Kredit2> {
               const SizedBox(
                 height: 20,
               ),
-              CustomWidgets.textField(
-                  'Berapa penghasilan tambahan anda dari usaha sampingan (jika ada)?',
-                  textController: _pendapatanTambahanController,
-                  lines: 1,
-                  isNumber: true,
-                  cornerRadius: 10.0),
+              Text(
+                "Berapa penghasilan tambahan anda dari usaha sampingan ? (jika ada)",
+                style: const TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontFamily: 'Oppen-sans',
+                    color: Color(0xff355070),
+                    fontSize: 18),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                controller: _pendapatanTambahanController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  CurrencyPtBrInputFormatter()
+                ],
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    hintText: "Tuliskan penghasilan tambahan Anda"),
+              ),
               const SizedBox(
                 height: 20,
               ),

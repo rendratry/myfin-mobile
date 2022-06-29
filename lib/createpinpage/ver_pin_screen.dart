@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myfin_app/alertsucces.dart';
-import 'package:myfin_app/createpinpage/createpin_model.dart';
-import 'package:myfin_app/homepage/navbar.dart';
+import 'package:Myfin/alertsucces.dart';
+import 'package:Myfin/createpinpage/createpin_model.dart';
+import 'package:Myfin/homepage/navbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -29,7 +29,7 @@ Future<bool?> createpinData(String pin) async {
 
   final msg = jsonEncode({"pin": pin});
   var response = await http.put(
-    Uri.http(baseUrl!, 'api/pinnasabah/'+stringId),
+    Uri.https(baseUrl!, 'api/pinnasabah/'+stringId),
     headers: {
       'X-API-Key': "myfin",
       'Accept': "application/json",
@@ -137,7 +137,7 @@ class _VerpinscreenState extends State<Verpinscreen> {
       if (pin == pinlama){
         bool? data = await createpinData(pin);
         if (data==true){
-          showprogess(context);
+          pinSucceess(context);
           // var navigationResult = await Navigator.push(context, new MaterialPageRoute(
           //     builder: (context)=> const Navbar()));
         }else{

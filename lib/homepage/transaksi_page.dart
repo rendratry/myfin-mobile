@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myfin_app/transaksipage/dalam_proses.dart';
-import 'package:myfin_app/transaksipage/selesai.dart';
+import 'package:Myfin/transaksipage/dalam_proses.dart';
+import 'package:Myfin/transaksipage/selesai.dart';
 
 class Transaksi extends StatelessWidget {
   const Transaksi({Key? key}) : super(key: key);

@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:myfin_app/alertsucces.dart';
-import 'package:myfin_app/penarikansaldopage/penarikan_saldo_model.dart';
+import 'package:Myfin/alertsucces.dart';
+import 'package:Myfin/penarikansaldopage/penarikan_saldo_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,7 +23,7 @@ Future<bool?> penguranganSaldo(int id, int saldo) async {
   SharedPreferences server = await SharedPreferences.getInstance();
   String? baseUrl = server.getString('server');
   final msg = jsonEncode({"saldo":saldo});
-  var response = await http.put(Uri.http(baseUrl!,'api/minsaldo/'+id.toString()),
+  var response = await http.put(Uri.https(baseUrl!,'api/minsaldo/'+id.toString()),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -46,7 +46,7 @@ Future<bool?> penarikanSaldo(int id, int jumlahPenarikan,String bank, String nor
   String? baseUrl = server.getString('server');
 
   final msg = jsonEncode({"id": id, "jml_penarikan":jumlahPenarikan, "bank":bank, "norek":norek, "nama_pemilik":namaPemilik});
-  var response = await http.post(Uri.http(baseUrl!,'api/penarikansaldo'),
+  var response = await http.post(Uri.https(baseUrl!,'api/penarikansaldo'),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:Myfin/alertsucces.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter_svg/svg.dart';
@@ -17,7 +18,7 @@ Future<bool?> pertanyaanKeamanan(int id,String pertanyaan, String jawaban) async
   SharedPreferences server = await SharedPreferences.getInstance();
   String? baseUrl = server.getString('server');
   final msg = jsonEncode({"pertanyaan":pertanyaan, "jawaban":jawaban});
-  var response = await http.put(Uri.http(baseUrl!,'api/keamanannasabah/'+id.toString()),
+  var response = await http.put(Uri.https(baseUrl!,'api/keamanannasabah/'+id.toString()),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -145,7 +146,7 @@ class _PertanyaanState extends State<Pertanyaan> {
         bool? data = await pertanyaanKeamanan(id!, pertanyaankeamanan!, jawaban);
 
         if(data == true){
-          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Berhasil Set Keamanan"),));
+          keamananSucceess(context);
         }else{
           showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Gagal Set Keamanan"),));
         }

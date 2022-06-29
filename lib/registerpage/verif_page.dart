@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:myfin_app/createpinpage/onboarding_pin.dart';
-import 'package:myfin_app/registerpage/register_model.dart';
-import 'package:myfin_app/registerpage/register_page.dart';
-import 'package:myfin_app/registerpage/verif_model.dart';
+import 'package:Myfin/createpinpage/onboarding_pin.dart';
+import 'package:Myfin/registerpage/register_model.dart';
+import 'package:Myfin/registerpage/register_page.dart';
+import 'package:Myfin/registerpage/verif_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,7 +23,7 @@ Future<bool?> verifikasiData(String emailid, String otp) async {
 
   final msg = jsonEncode({"email": emailid, "otp": otp});
   var response = await http.post(
-      Uri.http(baseUrl!, 'api/emailvalidation'),
+      Uri.https(baseUrl!, 'api/emailvalidation'),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",

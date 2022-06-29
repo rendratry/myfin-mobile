@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:myfin_app/alertsucces.dart';
+import 'package:Myfin/alertsucces.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -75,12 +75,12 @@ class Kredit5 extends StatefulWidget {
 }
 
 
-Future<bool?> pengajuanKredit(int id, String penggunaan,int besarPengajuan, String tenor, int score) async{
+Future<bool?> pengajuanKredit(int id, String penggunaan, int besarPengajuan, String pekerjaan, String gaji, String gajiTambahan, String tenor, int score) async{
   SharedPreferences server = await SharedPreferences.getInstance();
   String? baseUrl = server.getString('server');
 
-  final msg = jsonEncode({"id": id, "penggunaan":penggunaan, "besar_pengajuan":besarPengajuan, "tenor":tenor, "score":score});
-  var response = await http.post(Uri.http(baseUrl!,'api/pengajuankredit'),
+  final msg = jsonEncode({"id": id, "penggunaan":penggunaan, "besar_pengajuan":besarPengajuan, "pekerjaan":pekerjaan,"gaji":gaji,"gaji_tambahan":gajiTambahan,"tenor":tenor, "score":score});
+  var response = await http.post(Uri.https(baseUrl!,'api/pengajuankredit'),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -193,7 +193,12 @@ class _Kredit5State extends State<Kredit5> {
                 int m = int.parse(widget.valueKondisiBisnis);
                 int n = int.parse(widget.valueHubunganKeluarga);
                 int o = int.parse(widget.valueHubunganSosial);
-                int p = int.parse(widget.valueMemilihAplikasi);
+                int p;
+                if (widget.valueMemilihAplikasi == "3") {
+                  p = 1;
+                }else{
+                  p = int.parse(widget.valueMemilihAplikasi);
+                }
                 int q = int.parse(widget.valuePernahHutang);
                 int r = int.parse(widget.valueKesulitanHutang);
                 int s = int.parse(widget.valueTerlambatMembayar);
@@ -232,16 +237,41 @@ class _Kredit5State extends State<Kredit5> {
                 SharedPreferences prefstenor = await SharedPreferences.getInstance();
                 String? tenor= prefstenor.getString('tenor');
                 int score = z;
-                var pengajuanint = int.parse(besarPengajuan!);
+                String besarPengajuanNilai = widget.valueBesarPengajuan;
+                String resultBesarPengajuan = besarPengajuanNilai.replaceAll(RegExp('[^0-9]'), '');
+                String besarPendapatantambahan = widget.valuePendapatanTambahan;
+                String resultPendapatantambahan = besarPendapatantambahan.replaceAll(RegExp('[^0-9]'), '');
+                var pengajuanint = int.parse(resultBesarPengajuan);
+                String pekerjaan = widget.valuePekerjaan;
+                String pendapatan = widget.valuePendapatan;
+                String pendapatantambahan = resultPendapatantambahan;
+                var pendapatanString;
+                if(pendapatan=="1"){
+                  pendapatanString = '< Rp. 1.000.000';
+                }
+                else if(pendapatan=="2"){
+                  pendapatanString = '> Rp. 1.000.000 s/d Rp. 3.000.000';
+                }
+                else if(pendapatan=="3"){
+                  pendapatanString = '> Rp. 3.000.000 s/d Rp. 7.000.000';
+                }
+                else if(pendapatan=="4"){
+                  pendapatanString = '> Rp. 7.000.000 s/d Rp. 10.000.000';
+                }else{
+                  pendapatanString = '> Rp. 10.000.000';
+                }
 
-                bool? pengajuan = await pengajuanKredit(id!, penggunaan!, pengajuanint!, tenor!, score);
+                bool? pengajuan = await pengajuanKredit(id!, penggunaan!, pengajuanint!, pekerjaan, pendapatanString, pendapatantambahan,tenor!, score);
                 if(pengajuan == true){
-                  showprogess(context);
+                  successPengajuanKredit(context);
                   //showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Berhasil Mengajukan"),));
                 }else{
                   showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pengajuan Gagal"),));
                 }
                 print(z);
+                // String besarPengajuanNilai = widget.valueBesarPengajuan;
+                // String resultBesarPengajuan = besarPengajuanNilai.replaceAll(RegExp('[^0-9]'), '');
+                print(resultBesarPengajuan);
                 print("Besar Pengajuan = " + widget.valueBesarPengajuan);
                 print("Pekerjaan = " + widget.valuePekerjaan);
                 print("Lama Bekerja = " + widget.valueLamaBekerja);

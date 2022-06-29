@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:myfin_app/createpinpage/create_pin_screen.dart';
+import 'package:Myfin/createpinpage/create_pin_screen.dart';
 
 // ignore: use_key_in_widget_constructors
 class Onboarding extends StatefulWidget {

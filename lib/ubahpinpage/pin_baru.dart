@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myfin_app/ubahpinpage/konfirmasi_pin_baru.dart';
+import 'package:Myfin/ubahpinpage/konfirmasi_pin_baru.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 

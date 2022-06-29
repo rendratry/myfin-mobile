@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:myfin_app/ubahpinpage/pertanyaan1.dart';
-import 'package:myfin_app/ubahpinpage/pin_baru.dart';
+import 'package:Myfin/ubahpinpage/pertanyaan1.dart';
+import 'package:Myfin/ubahpinpage/pin_baru.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,7 +22,7 @@ Future<bool?> updatePinNasabah(String email, String pin) async {
   String? baseUrl = server.getString('server');
   final msg = jsonEncode({"email": email, "pin": pin});
 
-  var response = await http.post(Uri.http(baseUrl!, '/api/login'),
+  var response = await http.post(Uri.https(baseUrl!, '/api/login'),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",

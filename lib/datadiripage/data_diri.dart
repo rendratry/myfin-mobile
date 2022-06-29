@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:myfin_app/alertsucces.dart';
-import 'package:myfin_app/datadiripage/nik_model.dart';
+import 'package:Myfin/alertsucces.dart';
+import 'package:Myfin/datadiripage/nik_model.dart';
 import 'package:path/path.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,11 +25,35 @@ class Datadiri extends StatefulWidget {
   }
 }
 
+
+Future<bool?> checkNik(String nik) async {
+  SharedPreferences server = await SharedPreferences.getInstance();
+  String? baseUrl = server.getString('server');
+  final msg = jsonEncode({"nik":nik});
+  var response = await http.post(Uri.https(baseUrl!,'api/nikcheck'),
+      headers: {
+        'X-API-Key': "myfin",
+        'Accept': "application/json",
+      },
+      body:
+      msg
+  );
+  var data = response.body;
+  print(data);
+  print(response.statusCode);
+
+  if(response.statusCode == 200){
+    return true;
+  }else{
+    return false;
+  }
+}
+
 Future<bool?> cekNik(int nik) async {
   SharedPreferences server = await SharedPreferences.getInstance();
   String? baseUrl = server.getString('server');
   final msg = jsonEncode({"nik":nik});
-  var response = await http.post(Uri.http(baseUrl!,'api/getnik/'),
+  var response = await http.post(Uri.https(baseUrl!,'api/getnik/'),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -75,7 +99,7 @@ Future<bool?> updateDataDiri(int id, String nik,String nama, String alamat, Stri
   String? baseUrl = server.getString('server');
 
   final msg = jsonEncode({"id": id, "nik":nik, "nama":nama, "alamat":alamat, "no_hp":noHp, "lahir":lahir, "kota":kota, "ktp":ktp, "swa":swa});
-  var response = await http.put(Uri.http(baseUrl!,'api/datanasabah/'+id.toString()),
+  var response = await http.put(Uri.https(baseUrl!,'api/datanasabah/'+id.toString()),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -342,32 +366,37 @@ class _DatadiriState extends State<Datadiri> {
                     ElevatedButton(
                       onPressed: () async {
                         String nik = nikController.text;
-                        bool? datadiri = await cekNik(int.parse(nik));
-                        if (datadiri == true){
-                          SharedPreferences prefsnama = await SharedPreferences.getInstance();
-                          String? namaNasabah = prefsnama.getString('nama');
+                        bool? checknik = await checkNik(nik);
+                            if(checknik==false){
+                              bool? datadiri = await cekNik(int.parse(nik));
+                              if (datadiri == true){
+                                SharedPreferences prefsnama = await SharedPreferences.getInstance();
+                                String? namaNasabah = prefsnama.getString('nama');
 
-                          SharedPreferences prefsalamat = await SharedPreferences.getInstance();
-                          String? alamat = prefsalamat.getString('alamat');
+                                SharedPreferences prefsalamat = await SharedPreferences.getInstance();
+                                String? alamat = prefsalamat.getString('alamat');
 
-                          SharedPreferences prefslahir = await SharedPreferences.getInstance();
-                          String? lahir = prefslahir.getString('tgl_lahir');
+                                SharedPreferences prefslahir = await SharedPreferences.getInstance();
+                                String? lahir = prefslahir.getString('tgl_lahir');
 
-                          SharedPreferences prefskota = await SharedPreferences.getInstance();
-                          String? kota = prefskota.getString('kota');
+                                SharedPreferences prefskota = await SharedPreferences.getInstance();
+                                String? kota = prefskota.getString('kota');
 
-                          setState(() => this.nama = namaNasabah);
-                          setState(() => this.alamat = alamat);
-                          setState(() => this.lahir = lahir);
-                          setState(() => this.kota = kota);
-                          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Berhasil Mengambil Data"),));
-                        }else{
-                          setState(() => this.nama = null);
-                          setState(() => this.alamat = null);
-                          setState(() => this.lahir = null);
-                          setState(() => this.kota = null);
-                          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Nik Tidak Terdaftar"),));
-                        }
+                                setState(() => this.nama = namaNasabah);
+                                setState(() => this.alamat = alamat);
+                                setState(() => this.lahir = lahir);
+                                setState(() => this.kota = kota);
+                                showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Berhasil Mengambil Data"),));
+                              }else{
+                                setState(() => this.nama = null);
+                                setState(() => this.alamat = null);
+                                setState(() => this.lahir = null);
+                                setState(() => this.kota = null);
+                                showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Nik Tidak Terdaftar"),));
+                              }
+                            }else{
+                              nikTerdaftar(context);
+                            }
                       },
                       child: const Text("Check NIK"),
                       style: ElevatedButton.styleFrom(
@@ -576,11 +605,26 @@ class _DatadiriState extends State<Datadiri> {
         SharedPreferences prefsswa = await SharedPreferences.getInstance();
         String? swa = prefsswa.getString('url_swa');
         bool? uploaddata = await updateDataDiri(id!, nik!.toString(), nama!, alamat!, noHp, lahir!, kota!, ktp!, swa!);
-        if(uploaddata == true){
-          successIsiData(context);
-          //showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Berhasil Update Data"),));
-        }else{
-          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Upload Gagal"),));
+        if(nikController.text == ""){
+          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pastikan Semua Terisi Benar"),));
+        }else {
+          if (nama == " ") {
+            showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pastikan Semua Terisi Benar"),));
+          }else if(controller.text == "")
+        {
+          showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pastikan Semua Terisi Benar"),));
+        }else if(_foto == null){
+            showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pastikan Semua Terisi Benar"),));
+          }else if(_image == null){
+            showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pastikan Semua Terisi Benar"),));
+          }
+          else{
+            if(uploaddata == true){
+              successIsiData(context);
+              }else{
+              showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Upload Gagal"),));
+            }
+          }
         }
       },
       fillColor: const Color.fromRGBO(53, 80, 112, 1),

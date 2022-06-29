@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:myfin_app/loading.dart';
-import 'package:myfin_app/loginpage/login_screen.dart';
-import 'package:myfin_app/registerpage/register_model.dart';
-import 'package:myfin_app/registerpage/verif_page.dart';
+import 'package:Myfin/alertsucces.dart';
+import 'package:Myfin/loading.dart';
+import 'package:Myfin/loginpage/login_screen.dart';
+import 'package:Myfin/registerpage/register_model.dart';
+import 'package:Myfin/registerpage/verif_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: use_key_in_widget_constructors
@@ -14,11 +15,35 @@ class Register extends StatefulWidget {
   _RegisterState createState() => _RegisterState();
 }
 
+
+
+Future<bool?> emailCheck(String email) async{
+  SharedPreferences server = await SharedPreferences.getInstance();
+  String? baseUrl = server.getString('server');
+  final msg = jsonEncode({"email": email});
+  var response = await http.post(Uri.https(baseUrl!,'api/emailcheck'),
+      headers: {
+        'X-API-Key': "myfin",
+        'Accept': "application/json",
+      },
+      body:
+      msg
+  );
+  var data = response.body;
+  print(data);
+  print(response.statusCode);
+
+  if(response.statusCode == 200){
+    return true;
+  } else
+    return false;
+}
+
 Future<bool?> registerData(String email) async{
   SharedPreferences server = await SharedPreferences.getInstance();
   String? baseUrl = server.getString('server');
   final msg = jsonEncode({"email": email});
-  var response = await http.post(Uri.http(baseUrl!,'api/datanasabah'),
+  var response = await http.post(Uri.https(baseUrl!,'api/datanasabah'),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -103,17 +128,27 @@ class _RegisterState extends State<Register> {
             ),
             RawMaterialButton(
               onPressed: () async {
-                loadingprogess(context);
                 String email = emailController.text;
-                bool? data = await registerData(email);
-                SharedPreferences prefs =
-                await SharedPreferences.getInstance();
-                await prefs.setString('emailNasabah', emailController.text);
-                if(data==true){
-                  var navigationResult = await Navigator.push(context, new MaterialPageRoute(
-                      builder: (context)=> Verifikasi()));
+                if(email==""){
+                  showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Isi Email Dengan Benar"),));
                 }else{
-                  showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Register Gagal"),));
+                  bool? data = await emailCheck(email);
+                  if (data==false){
+                    registerLoading(context);
+                    SharedPreferences prefs =
+                    await SharedPreferences.getInstance();
+                    await prefs.setString('emailNasabah', emailController.text);
+                    if(data!=true){
+                      bool? daftar = await registerData(email);
+                      if(daftar == true){
+                        var navigationResult = await Navigator.push(context, new MaterialPageRoute(
+                            builder: (context)=> Verifikasi()));
+                      }
+                    }
+                  } else{
+                    emailTerdaftar(context);
+                    //showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Email Sudah Terdaftar"),));
+                  }
                 }
 
               },
@@ -165,7 +200,7 @@ class _RegisterState extends State<Register> {
         r"{0,253}[a-zA-Z0-9])?)*$";
     RegExp regex = RegExp(pattern);
     if (value == null || value.isEmpty || !regex.hasMatch(value)) {
-      return 'Enter a valid email address';
+      return 'Masukkan Email Dengan Benar';
     } else {
       return null;
     }

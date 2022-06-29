@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import './pin_screen.dart';
-import 'package:myfin_app/loginpage/login_screen.dart';
+import 'package:Myfin/loginpage/login_screen.dart';
 
 class ModalTrigger extends StatelessWidget {
   const ModalTrigger({Key? key}) : super(key: key);

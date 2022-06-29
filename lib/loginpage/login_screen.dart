@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:myfin_app/loginpage/pin_screen.dart';
-import 'package:myfin_app/registerpage/register_page.dart';
+import 'package:Myfin/alertsucces.dart';
+import 'package:Myfin/loginpage/pin_screen.dart';
+import 'package:Myfin/registerpage/register_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../exitalert.dart';
@@ -59,10 +60,24 @@ class _LoginDemoState extends State<LoginDemo> {
                     ),
                   )
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(''),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      primary: const Color.fromRGBO(2, 62, 138, 1),
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    child: const Text("Lupa PIN?"),
+                    onPressed: (){
+                      lupaPin(context);
+                      }, ),
+                ],
+              ),
               const SizedBox(
                 height: 50,
               ),
-
               Theme(
                 data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
                 child: RawMaterialButton(
@@ -71,15 +86,16 @@ class _LoginDemoState extends State<LoginDemo> {
                     SharedPreferences prefsEmail =
                     await SharedPreferences.getInstance();
                     await prefsEmail.setString('emailNasabah', email);
+                    _showModallBottomSheet(context);
 
-                    showModalBottomSheet(
-                        context: context,
-                        useRootNavigator:true,
-                        isScrollControlled: true,
-                        builder: (BuildContext context){
-                          print(email);
-                          return MyBottomSheet();
-                        });
+                    // showModalBottomSheet(
+                    //     context: context,
+                    //     useRootNavigator:true,
+                    //     isScrollControlled: true,
+                    //     builder: (BuildContext context){
+                    //       print(email);
+                    //       return MyBottomSheet();
+                    //     });
                   },
                   fillColor: const Color.fromRGBO(53, 80, 112, 1),
                   constraints: const BoxConstraints(minHeight: 49, minWidth: 128),
@@ -113,6 +129,21 @@ class _LoginDemoState extends State<LoginDemo> {
                       MaterialPageRoute(builder: (context) => Register()),
                     );}, ),
                 ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Beta Version'),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      primary: const Color.fromRGBO(2, 62, 138, 1),
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    child: const Text("Setup Server"),
+                    onPressed: (){
+                      setupServer(context);
+                    }, ),
+                ],
               )
             ],
           ),
@@ -128,7 +159,7 @@ class _LoginDemoState extends State<LoginDemo> {
         r"{0,253}[a-zA-Z0-9])?)*$";
     RegExp regex = RegExp(pattern);
     if (value == null || value.isEmpty || !regex.hasMatch(value)) {
-      return 'Enter a valid email address';
+      return 'Masukkan Email Dengan Benar';
     } else {
       return null;
     }
@@ -153,4 +184,28 @@ class MyBottomSheet extends StatelessWidget {
         )
     );
   }
+}
+
+_showModallBottomSheet(context) {
+  showModalBottomSheet(
+      context: context,
+      useRootNavigator:true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context){
+        return Padding(
+          padding: MediaQuery.of(context).viewInsets,
+          child: Container(
+            height: 310,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: InputPin(),
+          ),
+        );
+      });
 }

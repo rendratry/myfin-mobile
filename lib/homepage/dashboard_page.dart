@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
-import 'package:myfin_app/alertsucces.dart';
-import 'package:myfin_app/currency.dart';
-import 'package:myfin_app/homepage/profile_model.dart';
-import 'package:myfin_app/homepage/saldo_model.dart';
-import 'package:myfin_app/penarikansaldopage/penarikan_saldo_page.dart';
+import 'package:Myfin/alertsucces.dart';
+import 'package:Myfin/currency.dart';
+import 'package:Myfin/homepage/profile_model.dart';
+import 'package:Myfin/homepage/saldo_model.dart';
+import 'package:Myfin/penarikansaldopage/penarikan_saldo_page.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../pengajuankreditpage/kredit_1.dart';
 import '../refresh_widget.dart';
@@ -41,6 +41,7 @@ class _DashboardState extends State<Dashboard>{
   int? saldo;
   String? ava;
   String? nik;
+  String? nama;
 
   @override
   void initState() {
@@ -51,6 +52,31 @@ class _DashboardState extends State<Dashboard>{
 
 
 
+  Future<bool?> gettransaksiPending(int id) async {
+    SharedPreferences server = await SharedPreferences.getInstance();
+    String? baseUrl = server.getString('server');
+
+    var stringId = id.toString();
+
+    var response = await http.get(
+      Uri.https(baseUrl!, 'api/transaksi/$stringId/pending'),
+      headers: {
+        'X-API-Key': "myfin",
+        'Accept': "application/json",
+      },
+    );
+    var data = response.body;
+    print(data);
+    print(response.statusCode)
+    ;
+
+    if (response.statusCode == 200) {
+      return true;
+    }else{
+      return null;
+    }
+  }
+
   Future<bool?> getsaldoData(int id) async {
     SharedPreferences server = await SharedPreferences.getInstance();
     String? baseUrl = server.getString('server');
@@ -58,7 +84,7 @@ class _DashboardState extends State<Dashboard>{
     var stringId = id.toString();
 
     var response = await http.get(
-        Uri.http(baseUrl!, 'api/getsaldo/'+stringId),
+        Uri.https(baseUrl!, 'api/getsaldo/'+stringId),
         headers: {
           'X-API-Key': "myfin",
           'Accept': "application/json",
@@ -88,7 +114,7 @@ class _DashboardState extends State<Dashboard>{
     var stringId = id.toString();
 
     var response = await http.get(
-      Uri.http(baseUrl!, 'api/profile/'+stringId),
+      Uri.https(baseUrl!, 'api/profile/'+stringId),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -103,10 +129,13 @@ class _DashboardState extends State<Dashboard>{
       var decodeId = ProfileModel.fromJson(jsonDecode(response.body));
       String profilNik = decodeId.data.nik;
       String ava = decodeId.data.ava;
+      String nama = decodeId.data.nama;
 
       SharedPreferences prefsId =
       await SharedPreferences.getInstance();
       await prefsId.setString('ava', ava);
+      await SharedPreferences.getInstance();
+      await prefsId.setString('namadepan', nama);
       await SharedPreferences.getInstance();
       await prefsId.setString('profileNik', profilNik);
 
@@ -133,12 +162,15 @@ class _DashboardState extends State<Dashboard>{
       String? nik = saldoNasabah.getString('profileNik');
       SharedPreferences ava = await SharedPreferences.getInstance();
       String? avaNasabah = ava.getString('ava');
+      SharedPreferences nama = await SharedPreferences.getInstance();
+      String? namaNasabah = ava.getString('namadepan');
       print(saldo);
 
       // final currencyFormatter = NumberFormat.currency(locale: 'ID');
       // var saldoCurrency = currencyFormatter.format(saldo.toString());
 
       setState(() => this.nik = nik);
+      setState(() => this.nama = namaNasabah);
       setState(() => this.ava = avaNasabah);
     }
 
@@ -166,18 +198,37 @@ class _DashboardState extends State<Dashboard>{
     }
     if (saldo==null){
       saldo =0;
+    }else if (saldo! < 0){
+      saldo=0;
     }else{
-      saldo=saldo;
+    saldo=saldo;
     }
     var nomSaldo = CurrencyFormat.convertToIdr(saldo, 0);
     var textToDisplay = nomSaldo.toString();
+
+    var namaToDisplay;
+    if(nama=="0"){
+      namaToDisplay = " ";
+    }else{
+      var namaDepan = nama?.split(" ");
+      print(namaDepan);
+      namaToDisplay = namaDepan?.first;
+    }
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.only(top: 28, left: 27, right: 27),
         color: Colors.white,
         child:
-        saldo == null?  const Center(child: CircularProgressIndicator()):
-        ava == null?  const Center(child: CircularProgressIndicator())
+        saldo == null?  Center(
+          child: Lottie.network('https://assets4.lottiefiles.com/packages/lf20_b88nh30c.json',
+              width: 150,
+              height: 150
+          ),):
+        ava == null?  Center(
+          child: Lottie.network('https://assets4.lottiefiles.com/packages/lf20_b88nh30c.json',
+              width: 150,
+              height: 150
+          ),)
             : RefreshWidget(
           keyRefresh: keyRefresh,
           onRefresh: loadList,
@@ -189,7 +240,7 @@ class _DashboardState extends State<Dashboard>{
                   Column(
                     children: [
                       Text(
-                        "Halo,\n" + greetingMessage(),
+                        "Halo, $namaToDisplay\n" + greetingMessage(),
                         style: const TextStyle(
                             fontFamily: 'Roboto',
                             fontSize: 15,
@@ -235,11 +286,15 @@ class _DashboardState extends State<Dashboard>{
                   IconButton(
                       icon: SvgPicture.asset('assets/svg/download.svg'),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PenarikanSaldo()),
-                        );
+                        if(saldo==0){
+                          noHaveSaldo(context);
+                        }else{
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const PenarikanSaldo()),
+                          );
+                        }
                       }),
                   // SvgPicture.asset('assets/svg/download.svg'),
                 ],
@@ -283,13 +338,20 @@ class _DashboardState extends State<Dashboard>{
                       const BoxConstraints.tightFor(width: 140, height: 35),
                       child: ElevatedButton(
                         onPressed: () async {
+                          SharedPreferences idNasabah = await SharedPreferences.getInstance();
+                          int? id = idNasabah.getInt('idNasabah');
+                          bool? cekStatusAjuan = await gettransaksiPending(id!);
                           if (nik == "0"){
                             mustIsiData(context);
                           }else{
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const Kredit1()),
-                            );
+                            if(cekStatusAjuan==true){
+                              havePendingAjuan(context);
+                            }else{
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const Kredit1()),
+                              );
+                            }
                           }
                         },
                         child: const Text(

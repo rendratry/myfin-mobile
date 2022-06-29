@@ -126,16 +126,12 @@ class _Kredit3State extends State<Kredit3> {
       'label': 'Aman',
     },
     {
-      'value': 1,
+      'value': 3,
       'label': 'Bunga Ringan',
     },
     {
       'value': 2,
       'label': 'Sudah Pernah Meminjam Sebelumnya',
-    },
-    {
-      'value': 1,
-      'label': 'Lainnya',
     },
   ];
 

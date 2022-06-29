@@ -13,7 +13,7 @@ class AmbilOffline extends StatelessWidget {
         Container(
           padding: EdgeInsets.only(top: 70),
           child: Text(
-            "Untuk mengambil uang bisa langsung datangi\ncustomer\nservice Myfin dan sebutkan nama kamu",
+            "Untuk mengambil uang bisa langsung datangi\ncustomer service Myfin dan sebutkan nama kamu",
             style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 12,

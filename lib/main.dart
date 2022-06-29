@@ -1,20 +1,27 @@
-git commit -m "first commit"
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:myfin_app/homepage/navbar.dart';
-import 'package:myfin_app/loginpage/login_screen.dart';
+import 'package:Myfin/homepage/navbar.dart';
+import 'package:Myfin/loginpage/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:page_transition/page_transition.dart';
+
+
 
 
 Future<void> main() async {
+
+  // SharedPreferences idNasabah = await SharedPreferences.getInstance();
+  // int? id = idNasabah.getInt('idNasabah');
+  //
+  // setState(() => this.id = id);
   WidgetsFlutterBinding.ensureInitialized();
   //Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await firebase_core.Firebase.initializeApp(
     // options: DefaultFirebaseOptions.currentPlatform,
   );
-  SharedPreferences server = await SharedPreferences.getInstance();
-  await server.setString('server', "192.168.79.47:3000");
+  // SharedPreferences server = await SharedPreferences.getInstance();
+  // await server.setString('server', "d9b2-120-188-86-240.ap.ngrok.io");
   runApp(const MyApp());
 }
 
@@ -27,12 +34,17 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Myfin App",
       initialRoute: 'loginscreen',
-    routes: {
-      // When navigating to the "homeScreen" route, build the HomeScreen widget.
-      'loginscreen': (context) => LoginDemo(),
-      // When navigating to the "secondScreen" route, build the SecondScreen widget.
-      'navbar': (context) => const Navbar(),
-    },
+      home: AnimatedSplashScreen(
+        splash:
+            Image.asset('assets/png/logobaru.png'),
+        splashIconSize: 70.0,
+        nextScreen: LoginDemo(),
+        splashTransition: SplashTransition.scaleTransition,
+        pageTransitionType: PageTransitionType.rightToLeft,
+        duration: 2000,
+        animationDuration: const Duration(seconds: 1),
+        curve: Curves.decelerate,
+      ),
     );
   }
 }

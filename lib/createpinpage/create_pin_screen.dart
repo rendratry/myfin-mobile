@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myfin_app/createpinpage/ver_pin_screen.dart';
+import 'package:Myfin/createpinpage/ver_pin_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Createpinscreen extends StatefulWidget {

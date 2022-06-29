@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myfin_app/alertsucces.dart';
-import 'package:myfin_app/createpinpage/ver_pin_screen.dart';
+import 'package:Myfin/alertsucces.dart';
+import 'package:Myfin/createpinpage/ver_pin_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:myfin_app/homepage/profile_page.dart';
+import 'package:Myfin/homepage/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class KonfirmasiPinBaru extends StatefulWidget {
@@ -28,7 +28,7 @@ Future<bool?> createupdatePin(String pin) async {
 
   final msg = jsonEncode({"pin": pin});
   var response = await http.put(
-      Uri.http(baseUrl!, 'api/pinnasabah/'+stringId),
+      Uri.https(baseUrl!, 'api/pinnasabah/'+stringId),
       headers: {
         'X-API-Key': "myfin",
         'Accept': "application/json",
@@ -134,7 +134,7 @@ class _KonfirmasiPinBaruState extends State<KonfirmasiPinBaru> {
       if (pin == pinlama){
         bool? data = await createupdatePin(pin);
         if (data==true){
-          showprogess(context);
+          pinSucceess(context);
           // showDialog(context: context, builder: (context) => const AlertDialog(title: const Text("Pin Berhasil Diperbarui"),));
           //
           // Navigator.push(context, new MaterialPageRoute(builder: (context)=> Profile()));
